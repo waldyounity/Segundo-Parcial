@@ -7,13 +7,16 @@ pymysql.install_as_MySQLdb()
 
 from flask import Flask
 from config import config
-from .extensions import db, login_manager, admin
+#importamos al final el migrate
+from .extensions import db, login_manager, admin, migrate
 
 def create_app():
     app = Flask (__name__)
     app.config.from_object(config)
     
     db.init_app(app)
+    #vinculamos migrate con app y db
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     
     admin.init_app(app)

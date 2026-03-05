@@ -6,7 +6,8 @@ app=create_app()
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        #comentamos el creador para que no colisione con la migracion
+        # db.create_all()
         if not User.query.filter_by(username='admin').first():
             usuario = User(username='admin', role='admin')
 # Usamos tu método que contiene generate_password_hash:

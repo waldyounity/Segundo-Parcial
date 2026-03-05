@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, request, url_for, render_template
-from flask_login import login_user
+from flask_login import login_user, logout_user, current_user
 
 from app.models import User
 from .extensions import login_manager
@@ -18,6 +18,11 @@ def inicio():
 
 @auth_bp.route('/login', methods = ['GET', 'POST'])
 def login():
+    
+    #verificamos si hay un usuario que ya inicio sesion
+    if current_user.is_authenticated:
+        return redirect("/admin")
+    
     usuario = User.query.filter_by(
         username = request.form.get("nombre_usuario")
     ).first()
@@ -27,3 +32,9 @@ def login():
         return redirect("/admin")
     
     return render_template("login.html")
+
+#creamos la ruta para cerrar sesion
+@auth_bp.route('/logout')
+def logout():
+    logout_user() # Esto destruye la sesión actual
+    return redirect(url_for('auth.login')) # Te devuelve a la pantalla de login
