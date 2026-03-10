@@ -21,6 +21,54 @@ class BaseAdminView(ModelView):
 
 # --- Espacio de Samu (Personal y Departamentos) ---
 
+class DepartamentoView(BaseAdminView):
+
+    # Campos que se verán en la tabla
+
+    column_list = ['nombre', 'edificio_piso']
+
+    # Habilitar búsqueda por nombre
+
+    column_searchable_list = ['nombre']
+
+    # Nombre que aparecerá en el menú
+
+    name = "Departamentos"
+
+class UsuarioView(BaseAdminView):
+    # 1. Vista de tabla limpia
+    column_list = ['username', 'role', 'departamento']
+    column_filters = ['role']
+    
+    # 2. Quitar "tickets" del formulario de creación/edición
+    form_excluded_columns = ['tickets']
+    
+    # 3. Combobox estricto para roles
+    form_choices = {
+        'role': [
+            ('empleado', 'Empleado'),
+            ('tecnico', 'Técnico'),
+            ('admin', 'Administrador')
+        ]
+    }
+    
+    # 4. Forzar que el Departamento sea obligatorio
+    form_args = {
+        'departamento': {
+            'validators': [DataRequired(message="El departamento es obligatorio.")]
+        }
+    }
+    
+    # 5. Convertir el campo de texto de password en campo de contraseña (puntos)
+    form_extra_fields = {
+        'password': PasswordField('Contraseña')
+    }
+
+    # 6. Encriptar la contraseña correctamente al guardar
+    def on_model_change(self, form, model, is_created):
+        # Solo encriptamos si el usuario escribió algo en el campo
+        if form.password.data:
+            model.password = generate_password_hash(form.password.data)
 
 # --- Espacio de Brayan (Categorías de Fallas) ---
 
@@ -134,6 +182,8 @@ def configuracion_admin():
     
     # Registro Samu
     
+    admin.add_view(DepartamentoView(Departamento, db.session, name="Departamentos", category="Personal"))
+    admin.add_view(UsuarioView(User, db.session, name="Usuarios", category="Personal"))
     
     # Registro Brayan
     
