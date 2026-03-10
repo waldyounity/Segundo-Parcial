@@ -22,29 +22,61 @@ class BaseAdminView(ModelView):
 
 # --- Espacio de Jose (Inventario de Equipos) ---
 
-class EquipoAdminView(BaseAdminView):
-    column_list = ['id', 'nombre', 'tipo', 'numero_serie', 'estado']
-    column_searchable_list = ['nombre', 'numero_serie', 'tipo']
-    column_filters = ['estado', 'tipo']
-    column_sortable_list = ['nombre', 'tipo', 'estado', 'id']
-    
-    form_columns = ['nombre', 'tipo', 'numero_serie', 'estado']
-    form_args = {
-        'nombre': {'validators': [DataRequired()]},
-        'numero_serie': {'validators': [DataRequired()]},
-        'tipo': {'validators': [DataRequired()]},
-        'estado': {'validators': [DataRequired()]},
-    }
-    
+class EquipoView(ModelView): 
+    # 1. SEGURIDAD: Solo admin y técnicos
     def is_accessible(self):
-        """Permitir acceso a admin, técnico y empleado"""
-        return current_user.is_authenticated and current_user.role in ['admin', 'tecnico', 'empleado']
-    
+        return current_user.is_authenticated and current_user.role in ['admin', 'tecnico']
+
+    def inaccessible_callback(self, name, **kwargs):
+        flash("No tienes permisos para acceder al inventario de equipos.", "error")
+        return redirect(url_for('admin.index'))
+
+    # 2. VISTAS DE TABLA Y FILTROS
+    column_list = ['nombre', 'tipo', 'numero_serie', 'estado']
+    column_searchable_list = ['nombre', 'numero_serie']
+    column_filters = ['tipo', 'estado']
+
+    # 3. ETIQUETAS AMIGABLES
+    column_labels = {
+        'nombre': 'Nombre del Equipo',
+        'numero_serie': 'Número de Serie (S/N)',
+        'tipo': 'Tipo de Equipo'
+    }
+
+    # 4. REGLAS DE FORMULARIO (Control exacto de qué se ve)
+    form_create_rules = ('nombre', 'tipo', 'numero_serie')
+    form_edit_rules = ('nombre', 'tipo', 'numero_serie', 'estado')
+
+    # 5. PLACEHOLDERS
+    form_widget_args = {
+        'nombre': {
+            'placeholder': 'Ej: Laptop Gerencia, Switch Piso 2'
+        },
+        'numero_serie': {
+            'placeholder': 'Ej: LNV-8890-XYZ'
+        }
+    }
+
+    # 6. COMBOBOX ESTRICTOS
+    form_choices = {
+        'estado': [
+            ('Activo', 'Activo'), 
+            ('En Reparación', 'En Reparación'), 
+            ('Dado de Baja', 'Dado de Baja')
+        ],
+        'tipo': [
+            ('Servidor', 'Servidor'), 
+            ('Laptop', 'Laptop'), 
+            ('Impresora', 'Impresora'), 
+            ('Redes', 'Redes'),
+            ('Periférico', 'Periférico')
+        ]
+    }
+
+    # 7. AUTOMATIZACIÓN DEL ESTADO
     def on_model_change(self, form, model, is_created):
-        """Registra el usuario que ingresa el equipo"""
         if is_created:
-            model.usuario_ingreso = current_user.username
-        super().on_model_change(form, model, is_created)
+            model.estado = 'Activo'
 
 # --- Espacio de Waldo (Tickets y PDF) ---
 
@@ -61,7 +93,7 @@ def configuracion_admin():
     
     # Registro Jose
     
-    admin.add_view(EquipoAdminView(Equipo, db.session, name='Equipos', category='Inventario'))
+    admin.add_view(EquipoView(Equipo, db.session, name='Equipos', category='Inventario'))
     
     # Registro Waldo
     
