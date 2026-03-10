@@ -1,0 +1,23 @@
+# Python (Archivos compilados)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos Virtuales
+venv/
+env/
+.env
+
+# Base de Datos (Si no quieres subir tu DB de pruebas)
+*.db
+*.sqlite3
+
+# IDEs y Editores
+.vscode/
+.idea/
+*.swp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
