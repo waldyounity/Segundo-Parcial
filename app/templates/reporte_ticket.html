@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Técnico</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px; }
+        .estado-Pendiente { color: #d9534f; font-weight: bold; }
+        .estado-Completado { color: #5cb85c; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; width: 30%; }
+        .footer { margin-top: 40px; text-align: center; font-size: 0.8em; color: #777; }
+    </style>
+</head>
+<body>
+    {% for ticket in tickets %}
+    <div {% if not loop.last %}style="page-break-after: always;"{% endif %}>
+        <div class="header">
+            <h2>{{ 'Orden de Trabajo Técnico' if ticket.estado == 'Pendiente' else 'Reporte de Solución / Acta de Conformidad' }}</h2>
+            <p><strong>Ticket #{{ ticket.id }}</strong> | Fecha de emisión: {{ fecha }}</p>
+        </div>
+
+        <table>
+            <tr><th>Estado Actual</th><td class="estado-{{ ticket.estado }}">{{ ticket.estado }}</td></tr>
+            <tr><th>Reportado por</th><td>{{ ticket.creador.username }} ({{ ticket.creador.departamento.nombre }})</td></tr>
+            <tr><th>Categoría</th><td>{{ ticket.categoria.nombre }}</td></tr>
+            <tr><th>Equipo Afectado</th><td>{{ ticket.equipo.nombre }} <br><em>S/N: {{ ticket.equipo.numero_serie }}</em></td></tr>
+            <tr><th>Descripción de Falla</th><td>{{ ticket.descripcion }}</td></tr>
+        </table>
+
+        <div class="footer">
+            <p>Generado por el Sistema de Soporte IT - Departamento de Sistemas</p>
+        </div>
+    </div>
+    {% endfor %}
+</body>
+</html>

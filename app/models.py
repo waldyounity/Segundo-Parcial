@@ -30,6 +30,9 @@ class User(db.Model, UserMixin):
         
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+    def __str__(self):
+        return self.username
 
 # --- 3. TABLA CATEGORÍAS (Brayan) ---
 class Categoria(db.Model):
