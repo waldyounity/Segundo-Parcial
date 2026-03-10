@@ -98,6 +98,7 @@ class TicketView(ModelView):
             flash(f"Se han reabierto {count} tickets exitosamente. Vuelven a la cola de trabajo.", "success")
         except Exception as ex:
             flash(f"Error al actualizar tickets: {str(ex)}", "error")
+    
 
     # 6. ACCIÓN PARA EL PDF
     @action('generar_pdf', 'Exportar Informe (PDF)', '¿Desea generar el documento técnico de los tickets seleccionados?')
@@ -128,6 +129,28 @@ class TicketView(ModelView):
 
         except Exception as ex:
             flash(f"Error al generar PDF: {str(ex)}", "error")
+
+    # 7 accion para cambiar el estado de un equipo        
+    @action('reparar_equipo', 'Enviar Equipo a Reparación', '¿Cambiar el estado del equipo de este ticket a "En Reparación"?')
+    def action_reparar_equipo(self, ids):
+        # Seguridad: Solo técnicos y admin pueden tocar el hardware
+        if current_user.role not in ['admin', 'tecnico']:
+            flash("No tienes permiso para alterar el estado de los equipos.", "error")
+            return
+        
+        try:
+            tickets = Ticket.query.filter(Ticket.id.in_(ids)).all()
+            count = 0
+            for ticket in tickets:
+                # Verificamos que el ticket tenga un equipo y no esté ya en reparación
+                if ticket.equipo and ticket.equipo.estado != 'En Reparación':
+                    ticket.equipo.estado = 'En Reparación'
+                    count += 1
+            
+            db.session.commit()
+            flash(f"Se ha cambiado el estado a 'En Reparación' de {count} equipos exitosamente.", "success")
+        except Exception as ex:
+            flash(f"Error al actualizar el estado del equipo: {str(ex)}", "error")
 
 # Registro global de vistas
 def configuracion_admin():
