@@ -144,6 +144,8 @@ class TicketView(ModelView):
             count = 0
             for ticket in query.all():
                 ticket.estado = 'Completado'
+                if ticket.equipo:
+                    ticket.equipo.estado = 'Activo'
                 count += 1
             db.session.commit()
             flash(f"Se han finalizado {count} tickets exitosamente.", "success")
@@ -164,6 +166,8 @@ class TicketView(ModelView):
                 # Evitamos "reabrir" algo que ya está pendiente
                 if ticket.estado != 'Pendiente':
                     ticket.estado = 'Pendiente'
+                    if ticket.equipo:
+                        ticket.equipo.estado = 'En Reparación'
                     count += 1
             db.session.commit()
             flash(f"Se han reabierto {count} tickets exitosamente. Vuelven a la cola de trabajo.", "success")
