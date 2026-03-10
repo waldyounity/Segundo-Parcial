@@ -75,6 +75,29 @@ class UsuarioView(BaseAdminView):
 
 # --- Espacio de Jose (Inventario de Equipos) ---
 
+class EquipoAdminView(BaseAdminView):
+    column_list = ['id', 'nombre', 'tipo', 'numero_serie', 'estado']
+    column_searchable_list = ['nombre', 'numero_serie', 'tipo']
+    column_filters = ['estado', 'tipo']
+    column_sortable_list = ['nombre', 'tipo', 'estado', 'id']
+    
+    form_columns = ['nombre', 'tipo', 'numero_serie', 'estado']
+    form_args = {
+        'nombre': {'validators': [DataRequired()]},
+        'numero_serie': {'validators': [DataRequired()]},
+        'tipo': {'validators': [DataRequired()]},
+        'estado': {'validators': [DataRequired()]},
+    }
+    
+    def is_accessible(self):
+        """Permitir acceso a admin, técnico y empleado"""
+        return current_user.is_authenticated and current_user.role in ['admin', 'tecnico', 'empleado']
+    
+    def on_model_change(self, form, model, is_created):
+        """Registra el usuario que ingresa el equipo"""
+        if is_created:
+            model.usuario_ingreso = current_user.username
+        super().on_model_change(form, model, is_created)
 
 # --- Espacio de Waldo (Tickets y PDF) ---
 
@@ -190,6 +213,7 @@ def configuracion_admin():
     
     # Registro Jose
     
+    admin.add_view(EquipoAdminView(Equipo, db.session, name='Equipos', category='Inventario'))
     
     # Registro Waldo
     
