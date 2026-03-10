@@ -120,6 +120,7 @@ class CategoriaView(BaseAdminView):
 
 # --- Espacio de Jose (Inventario de Equipos) ---
 
+<<<<<<< HEAD
 class EquipoAdminView(BaseAdminView):
     column_list = ['id', 'nombre', 'tipo', 'numero_serie', 'estado']
     column_searchable_list = ['nombre', 'numero_serie', 'tipo']
@@ -143,6 +144,63 @@ class EquipoAdminView(BaseAdminView):
         if is_created:
             model.usuario_ingreso = current_user.username
         super().on_model_change(form, model, is_created)
+=======
+class EquipoView(ModelView): 
+    # 1. SEGURIDAD: Solo admin y técnicos
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role in ['admin', 'tecnico']
+
+    def inaccessible_callback(self, name, **kwargs):
+        flash("No tienes permisos para acceder al inventario de equipos.", "error")
+        return redirect(url_for('admin.index'))
+
+    # 2. VISTAS DE TABLA Y FILTROS
+    column_list = ['nombre', 'tipo', 'numero_serie', 'estado']
+    column_searchable_list = ['nombre', 'numero_serie']
+    column_filters = ['tipo', 'estado']
+
+    # 3. ETIQUETAS AMIGABLES
+    column_labels = {
+        'nombre': 'Nombre del Equipo',
+        'numero_serie': 'Número de Serie (S/N)',
+        'tipo': 'Tipo de Equipo'
+    }
+
+    # 4. REGLAS DE FORMULARIO (Control exacto de qué se ve)
+    form_create_rules = ('nombre', 'tipo', 'numero_serie')
+    form_edit_rules = ('nombre', 'tipo', 'numero_serie', 'estado')
+
+    # 5. PLACEHOLDERS
+    form_widget_args = {
+        'nombre': {
+            'placeholder': 'Ej: Laptop Gerencia, Switch Piso 2'
+        },
+        'numero_serie': {
+            'placeholder': 'Ej: LNV-8890-XYZ'
+        }
+    }
+
+    # 6. COMBOBOX ESTRICTOS
+    form_choices = {
+        'estado': [
+            ('Activo', 'Activo'), 
+            ('En Reparación', 'En Reparación'), 
+            ('Dado de Baja', 'Dado de Baja')
+        ],
+        'tipo': [
+            ('Servidor', 'Servidor'), 
+            ('Laptop', 'Laptop'), 
+            ('Impresora', 'Impresora'), 
+            ('Redes', 'Redes'),
+            ('Periférico', 'Periférico')
+        ]
+    }
+
+    # 7. AUTOMATIZACIÓN DEL ESTADO
+    def on_model_change(self, form, model, is_created):
+        if is_created:
+            model.estado = 'Activo'
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
 
 # --- Espacio de Waldo (Tickets y PDF) ---
 
@@ -189,6 +247,11 @@ class TicketView(ModelView):
             count = 0
             for ticket in query.all():
                 ticket.estado = 'Completado'
+<<<<<<< HEAD
+=======
+                if ticket.equipo:
+                    ticket.equipo.estado = 'Activo'
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
                 count += 1
             db.session.commit()
             flash(f"Se han finalizado {count} tickets exitosamente.", "success")
@@ -209,11 +272,20 @@ class TicketView(ModelView):
                 # Evitamos "reabrir" algo que ya está pendiente
                 if ticket.estado != 'Pendiente':
                     ticket.estado = 'Pendiente'
+<<<<<<< HEAD
+=======
+                    if ticket.equipo:
+                        ticket.equipo.estado = 'En Reparación'
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
                     count += 1
             db.session.commit()
             flash(f"Se han reabierto {count} tickets exitosamente. Vuelven a la cola de trabajo.", "success")
         except Exception as ex:
             flash(f"Error al actualizar tickets: {str(ex)}", "error")
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
 
     # 6. ACCIÓN PARA EL PDF
     @action('generar_pdf', 'Exportar Informe (PDF)', '¿Desea generar el documento técnico de los tickets seleccionados?')
@@ -244,6 +316,31 @@ class TicketView(ModelView):
 
         except Exception as ex:
             flash(f"Error al generar PDF: {str(ex)}", "error")
+<<<<<<< HEAD
+=======
+
+    # 7 accion para cambiar el estado de un equipo        
+    @action('reparar_equipo', 'Enviar Equipo a Reparación', '¿Cambiar el estado del equipo de este ticket a "En Reparación"?')
+    def action_reparar_equipo(self, ids):
+        # Seguridad: Solo técnicos y admin pueden tocar el hardware
+        if current_user.role not in ['admin', 'tecnico']:
+            flash("No tienes permiso para alterar el estado de los equipos.", "error")
+            return
+        
+        try:
+            tickets = Ticket.query.filter(Ticket.id.in_(ids)).all()
+            count = 0
+            for ticket in tickets:
+                # Verificamos que el ticket tenga un equipo y no esté ya en reparación
+                if ticket.equipo and ticket.equipo.estado != 'En Reparación':
+                    ticket.equipo.estado = 'En Reparación'
+                    count += 1
+            
+            db.session.commit()
+            flash(f"Se ha cambiado el estado a 'En Reparación' de {count} equipos exitosamente.", "success")
+        except Exception as ex:
+            flash(f"Error al actualizar el estado del equipo: {str(ex)}", "error")
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
 
 # Registro global de vistas
 def configuracion_admin():
@@ -259,7 +356,11 @@ def configuracion_admin():
     
     # Registro Jose
     
+<<<<<<< HEAD
     admin.add_view(EquipoAdminView(Equipo, db.session, name='Equipos', category='Inventario'))
+=======
+    admin.add_view(EquipoView(Equipo, db.session, name='Equipos', category='Inventario'))
+>>>>>>> 3de312f78af9b0228995cc25209007d69c51d132
     
     # Registro Waldo
     
