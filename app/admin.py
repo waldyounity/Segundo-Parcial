@@ -19,7 +19,18 @@ class BaseAdminView(ModelView):
 
 # --- Espacio de Brayan (Categorías de Fallas) ---
 
-
+class CategoriaAdmin(BaseAdminView):
+    column_list = ['nombre', 'nivel_gravedad', 'tiempo_estimado_horas']
+    column_searchable_list = ['nombre']
+    column_filters = ['nivel_gravedad']
+    column_editable_list = ['nivel_gravedad', 'tiempo_estimado_horas']
+    column_labels = {
+        'nombre': 'Categoría',
+        'nivel_gravedad': 'Gravedad',
+        'tiempo_estimado_horas': 'Tiempo (horas)'
+    }
+    form_columns = ['nombre', 'nivel_gravedad', 'tiempo_estimado_horas']
+    
 # --- Espacio de Jose (Inventario de Equipos) ---
 
 
@@ -35,10 +46,11 @@ def configuracion_admin():
     
     # Registro Brayan
     
+        admin.add_view(CategoriaAdmin(Categoria, db.session, name="Categorías", endpoint="admin_categorias"))
     
     # Registro Jose
     
     
     # Registro Waldo
     
-    pass
+pass
