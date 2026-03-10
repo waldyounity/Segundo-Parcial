@@ -4,7 +4,6 @@ from flask_admin.contrib.sqla import ModelView
 from .extensions import admin, db
 from .models import User, Departamento, Categoria, Equipo, Ticket
 from wtforms.validators import DataRequired
-
 # Clase base de seguridad para el panel
 class BaseAdminView(ModelView):
     def is_accessible(self):
