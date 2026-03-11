@@ -72,6 +72,51 @@ class UsuarioView(BaseAdminView):
 
 # --- Espacio de Brayan (Categorías de Fallas) ---
 
+class CategoriaView(BaseAdminView):
+    column_list = ['nombre', 'nivel_gravedad', 'tiempo_estimado_horas']
+    column_searchable_list = ['nombre']
+    column_filters = ['nivel_gravedad']
+    column_sortable_list = ['nombre', 'nivel_gravedad', 'tiempo_estimado_horas']
+    
+    form_excluded_columns = ['tickets']
+    
+    column_labels = {
+        'nombre': 'Nombre de la Categoría',
+        'nivel_gravedad': 'Nivel de Gravedad',
+        'tiempo_estimado_horas': 'Tiempo Estimado (horas)'
+    }
+    
+    form_choices = {
+        'nivel_gravedad': [
+            ('Alta', 'Alta'),
+            ('Media', 'Media'),
+            ('Baja', 'Baja')
+        ]
+    }
+    
+    form_args = {
+        'nombre': {
+            'validators': [DataRequired(message="El nombre de la categoría es obligatorio.")]
+        },
+        'nivel_gravedad': {
+            'validators': [DataRequired(message="Debes seleccionar un nivel de gravedad.")]
+        },
+        'tiempo_estimado_horas': {
+            'validators': [DataRequired(message="El tiempo estimado es obligatorio.")]
+        }
+    }
+    
+    form_widget_args = {
+        'nombre': {
+            'placeholder': 'Falla de Hardware, Problema de Red, Capacitación...'
+        },
+        'tiempo_estimado_horas': {
+            'min': 1,
+            'max': 720,
+            'style': 'width: 100px',
+            'placeholder': 'Ej: 24, 48, 72...'
+        }
+    }
 
 # --- Espacio de Jose (Inventario de Equipos) ---
 
@@ -269,6 +314,7 @@ def configuracion_admin():
     
     # Registro Brayan
     
+    admin.add_view(CategoriaView(Categoria, db.session, name="Categorías", category="Categorias"))
     
     # Registro Jose
     
