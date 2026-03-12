@@ -4,7 +4,65 @@
 
 <!-- APORTE DE BRAYAN -->
 
-
+<style>
+/* Estilos Generales */
+.dashboard-container { background: #f4f6f9; padding: 25px; border-radius: 15px; }
+.card-custom { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+background: white; margin-bottom: 25px; transition: 0.3s; }
+.card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.ia-report-box {
+background: #1e1e2f;
+color: #ffffff;
+border-radius: 15px;
+font-family: 'Segoe UI', sans-serif;
+min-height: 500px;
+border-top: 5px solid #ffc107;
+padding: 25px;
+line-height: 1.7;
+}
+.btn-analizar { border-radius: 50px; font-weight: bold; padding: 12px 30px; border: none;
+transition: 0.3s; }
+.btn-analizar:hover { transform: scale(1.05); }
+</style>
+<div class="container-fluid dashboard-container">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:
+30px;">
+<h2 style="font-weight: 800; color: #2c3e50;"><i class="fa-solid fa-gauge-high textprimary"></i> Estación de Comando <span class="text-primary">IT</span></h2>
+<button id="btn-analizar-ia" class="btn btn-warning btn-analizar shadow">
+<i class="fa-solid fa-robot"></i> Generar Auditoría Profunda
+</button>
+</div>
+<div class="row">
+<div class="col-md-5">
+<div class="card card-custom p-3">
+<h6 class="text-uppercase text-muted font-weight-bold mb-3"><i class="fa-solid fa-circlenotch"></i> Distribución de Carga</h6>
+<canvas id="graficoTickets" height="180"></canvas>
+</div>
+<div class="card card-custom p-3">
+<h6 class="text-uppercase text-muted font-weight-bold mb-3"><i class="fa-solid fa-layergroup"></i> Incidencias por Categoría</h6>
+<canvas id="graficoCategorias" height="180"></canvas>
+</div>
+<div class="card card-custom p-3">
+<h6 class="text-uppercase text-muted font-weight-bold mb-3"><i class="fa-solid famicrochip"></i> Estado del Inventario</h6>
+<canvas id="graficoEquipos" height="180"></canvas>
+</div>
+</div>
+<div class="col-md-7">
+<div class="card card-custom p-0 overflow-hidden" style="height: 96%;">
+<div class="card-header bg-dark text-white font-weight-bold py-3">
+<i class="fa-solid fa-terminal text-warning"></i> INFORME TÉCNICO DE AUDITORÍA
+</div>
+<div class="card-body ia-report-box" id="resultado-analisis">
+<div class="text-center" style="margin-top: 150px; color: #888;">
+<i class="fa-solid fa-wave-square fa-3x mb-3"></i>
+<p>> Esperando escaneo de base de datos...</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- APORTE DE SAMUEL -->
 
