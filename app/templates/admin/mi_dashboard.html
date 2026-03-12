@@ -66,6 +66,84 @@ transition: 0.3s; }
 
 <!-- APORTE DE SAMUEL -->
 
-
+<script> 
+document.addEventListener('DOMContentLoaded', () => { 
+     
+    // --- PARA EL FORMATEO DE LA IA --- 
+    function formatearTexto(texto) { 
+        let formateado = texto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
+        return formateado.replace(/\n/g, '<br>'); 
+    } 
+ 
+    // --- 1. LÓGICA DEL DASHBOARD  --- 
+    fetch('/api/estadisticas') 
+        .then(res => res.json()) 
+        .then(data => { 
+            // Gráfico 1: Estados  
+            new Chart(document.getElementById('graficoTickets'), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: ['Pendientes', 'Cerrados'], 
+                    datasets: [{ 
+                        data: [data.abiertos, data.cerrados], 
+                        backgroundColor: ['#ff6b6b', '#51cf66'], 
+                        hoverOffset: 15, 
+                        borderRadius: 10, 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { plugins: { legend: { position: 'bottom' } } } 
+            }); 
+ 
+            // Gráfico 2: Categorías 
+            new Chart(document.getElementById('graficoCategorias'), { 
+                type: 'bar', 
+                data: { 
+                    labels: data.cat_labels, 
+                    datasets: [{ 
+                        label: 'Tickets', 
+                        data: data.cat_data, 
+                        backgroundColor: '#339af0', 
+                        borderRadius: 8 
+                    }] 
+                }, 
+                options: {  
+                    indexAxis: 'y', 
+                    scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } 
+                } 
+            }); 
+ 
+            // Gráfico 3: Equipos 
+            new Chart(document.getElementById('graficoEquipos'), { 
+                type: 'pie', 
+                data: { 
+                    labels: ['Activos', 'En Reparación'], 
+                    datasets: [{ 
+                        data: data.equipos_stats, 
+                        backgroundColor: ['#228be6', '#fab005'], 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { plugins: { legend: { position: 'bottom' } } } 
+            }); 
+        }); 
+ 
+    document.getElementById('btn-analizar-ia').addEventListener('click', async () => { 
+        const resultadoDiv = document.getElementById('resultado-analisis'); 
+        resultadoDiv.innerHTML = '<div class="text-center" style="margin-top:150px;"><i class="fas fa
+sync fa-spin fa-3x"></i><p class="mt-3">> ESCANEANDO FLUJO DE DATOS...</p></div>'; 
+         
+        try { 
+            const req = await fetch('/api/analizar_dashboard'); 
+            const res = await req.json(); 
+            resultadoDiv.innerHTML = `<div style="text-align: left; animation: fadeIn 
+0.5s;">${formatearTexto(res.analisis)}</div>`; 
+        } catch (error) { 
+            resultadoDiv.innerHTML = '<p class="text-danger">> ERROR CRÍTICO EN LA 
+CONEXIÓN.</p>'; 
+        } 
+    }); 
+}); 
+</script>
 
 {% endblock %}
