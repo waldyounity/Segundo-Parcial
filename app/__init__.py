@@ -21,4 +21,8 @@ def create_app():
     from .auth import auth_bp    
     app.register_blueprint(auth_bp)
     
+    # Registramos el nuevo blueprint de Inteligencia Artificial
+    from .ia_routes import ia_bp
+    app.register_blueprint(ia_bp)
+    
     return app

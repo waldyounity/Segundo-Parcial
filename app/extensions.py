@@ -18,6 +18,9 @@ class PanelSeguroView(AdminIndexView):
         return redirect(url_for("auth.login"))
 
 # 2. Le inyectamos el guardia al Admin en el parámetro index_view
-admin = Admin(name="Soporte Técnico - IT", index_view=PanelSeguroView())
+admin = Admin(
+    name="Soporte Técnico - IT", 
+    index_view=PanelSeguroView(name="Dashboard", template="admin/mi_dashboard.html")
+)
 
 login_manager.login_view = "auth.login"
