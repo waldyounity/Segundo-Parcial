@@ -58,3 +58,47 @@ def chat_bot():
 
 # --- APORTE DE JOSE ---
 
+@ia_bp.route('/api/analizar_dashboard', methods=['GET'])
+def analizar_dashboard():
+    try:
+    # Obtenemos solo los tickets pendientes para el análisis de riesgos
+        pendientes = Ticket.query.filter_by(estado='Pendiente').all()
+        lista_pendientes = "\n".join([f"- {p.titulo}: {p.descripcion[:50]}" for p in pendientes])
+        prompt = f"""
+        Actúa como un Auditor IT Senior. Analiza estos tickets PENDIENTES:
+        {lista_pendientes}
+        Genera un informe con:
+        1. **Resumen de Crisis**: (¿Hay problemas críticos acumulados?)
+        2. **Impacto en el Negocio**: (¿Qué se está deteniendo?)
+        3. **Plan de Priorización**: (Dime qué ticket ID debo atender PRIMERO y por qué).
+        """
+        completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model="llama-3.3-70b-versatile",
+        )
+        return jsonify({'analisis': completion.choices[0].message.content})
+    except Exception as e:
+        return jsonify({'analisis': "No se pudo realizar el análisis técnico."}), 500
+# La ruta de estadísticas se mantiene igual
+@ia_bp.route('/api/estadisticas', methods=['GET'])
+def estadisticas():
+    try:
+        # 1. Datos de Tickets (Waldo)
+        pendientes = Ticket.query.filter_by(estado='Pendiente').count()
+        cerrados = Ticket.query.filter(Ticket.estado != 'Pendiente').count()
+        # 2. Datos de Categorías (Brayan)
+        categorias = Categoria.query.all()
+        cat_labels = [c.nombre for c in categorias]
+        cat_data = [Ticket.query.filter_by(categoria_id=c.id).count() for c in categorias]
+        # 3. Datos de Equipos (Jose)
+        activos = Equipo.query.filter_by(estado='Activo').count()
+        mantenimiento = Equipo.query.filter_by(estado='En Reparación').count()
+        return jsonify({
+        'abiertos': pendientes,
+        'cerrados': cerrados,
+        'cat_labels': cat_labels,
+        'cat_data': cat_data,
+        'equipos_stats': [activos, mantenimiento]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
